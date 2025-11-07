@@ -16,6 +16,7 @@ export interface Announcement {
   description: string;
   date: string;
   type: 'maintenance' | 'billing' | 'general';
+  important: boolean;
 }
 
 export interface BillingStatement {

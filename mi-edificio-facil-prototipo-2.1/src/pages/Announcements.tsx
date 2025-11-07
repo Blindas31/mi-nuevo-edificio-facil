@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Bell, FileText, Wrench } from 'lucide-react';
+import { ArrowLeft, Bell, FileText, Wrench, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,9 +7,15 @@ import { storage } from '@/lib/storage';
 
 export default function Announcements() {
   const navigate = useNavigate();
-  const announcements = storage.getAnnouncements().sort((a, b) => 
-    new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  const allAnnouncements = storage.getAnnouncements();
+
+  const importantAnnouncements = allAnnouncements
+    .filter(a => a.important)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  const regularAnnouncements = allAnnouncements
+    .filter(a => !a.important)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -52,7 +58,7 @@ export default function Announcements() {
           </p>
         </div>
 
-        {announcements.length === 0 ? (
+        {allAnnouncements.length === 0 ? (
           <Card>
             <CardContent className="py-8">
               <p className="text-muted-foreground text-center">
@@ -61,34 +67,80 @@ export default function Announcements() {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
-            {announcements.map((announcement) => (
-              <Card key={announcement.id}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
-                        {getIcon(announcement.type)}
+          <div className="space-y-6">
+            {importantAnnouncements.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <AlertCircle className="w-5 h-5 text-destructive" />
+                  <h3 className="text-xl font-semibold text-destructive">Anuncios Importantes</h3>
+                </div>
+                {importantAnnouncements.map((announcement) => (
+                  <Card key={announcement.id} className="border-l-4 border-l-destructive shadow-md">
+                    <CardHeader className="bg-destructive/5">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3 flex-1">
+                          <div className="w-10 h-10 bg-destructive/10 rounded-lg flex items-center justify-center">
+                            {getIcon(announcement.type)}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <CardTitle className="text-lg">{announcement.title}</CardTitle>
+                              <Badge variant="destructive" className="text-xs">Importante</Badge>
+                            </div>
+                            <CardDescription>
+                              {new Date(announcement.date).toLocaleDateString('es-CL', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                              })}
+                            </CardDescription>
+                          </div>
+                        </div>
+                        <Badge variant="secondary">{getTypeLabel(announcement.type)}</Badge>
                       </div>
-                      <div>
-                        <CardTitle className="text-lg">{announcement.title}</CardTitle>
-                        <CardDescription>
-                          {new Date(announcement.date).toLocaleDateString('es-CL', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                          })}
-                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-4">
+                      <p className="text-sm">{announcement.description}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {regularAnnouncements.length > 0 && (
+              <div className="space-y-4">
+                {importantAnnouncements.length > 0 && (
+                  <h3 className="text-xl font-semibold mt-6">Otros Anuncios</h3>
+                )}
+                {regularAnnouncements.map((announcement) => (
+                  <Card key={announcement.id}>
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                            {getIcon(announcement.type)}
+                          </div>
+                          <div>
+                            <CardTitle className="text-lg">{announcement.title}</CardTitle>
+                            <CardDescription>
+                              {new Date(announcement.date).toLocaleDateString('es-CL', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                              })}
+                            </CardDescription>
+                          </div>
+                        </div>
+                        <Badge variant="secondary">{getTypeLabel(announcement.type)}</Badge>
                       </div>
-                    </div>
-                    <Badge variant="secondary">{getTypeLabel(announcement.type)}</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm">{announcement.description}</p>
-                </CardContent>
-              </Card>
-            ))}
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm">{announcement.description}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </main>

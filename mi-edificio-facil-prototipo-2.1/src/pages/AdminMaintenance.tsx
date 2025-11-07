@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { storage, MaintenanceProject, Announcement } from '@/lib/storage';
 
@@ -17,6 +18,7 @@ export default function AdminMaintenance() {
   const [estimatedDate, setEstimatedDate] = useState('');
   const [budget, setBudget] = useState('');
   const [description, setDescription] = useState('');
+  const [isImportant, setIsImportant] = useState(false);
 
   const projects = storage.getMaintenanceProjects();
 
@@ -43,6 +45,7 @@ export default function AdminMaintenance() {
       description: `Se realizará mantenimiento en ${area}. Fecha estimada: ${estimatedDate}. Presupuesto: $${parseFloat(budget).toLocaleString('es-CL')}. ${description}`,
       date: new Date().toISOString(),
       type: 'maintenance',
+      important: isImportant,
     };
 
     const announcements = storage.getAnnouncements();
@@ -58,6 +61,7 @@ export default function AdminMaintenance() {
     setEstimatedDate('');
     setBudget('');
     setDescription('');
+    setIsImportant(false);
   };
 
   return (
@@ -139,6 +143,16 @@ export default function AdminMaintenance() {
                   required
                   rows={4}
                 />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="important"
+                  checked={isImportant}
+                  onCheckedChange={(checked) => setIsImportant(checked as boolean)}
+                />
+                <Label htmlFor="important" className="cursor-pointer">
+                  Marcar como importante
+                </Label>
               </div>
               <Button type="submit" className="w-full">
                 <Plus className="w-4 h-4 mr-2" />

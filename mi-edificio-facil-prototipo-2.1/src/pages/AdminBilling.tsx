@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { storage, BillingStatement, Announcement } from '@/lib/storage';
 
@@ -15,6 +16,7 @@ export default function AdminBilling() {
   const [month, setMonth] = useState('');
   const [amount, setAmount] = useState('');
   const [details, setDetails] = useState('');
+  const [isImportant, setIsImportant] = useState(false);
 
   const statements = storage.getBillingStatements();
 
@@ -39,6 +41,7 @@ export default function AdminBilling() {
       description: `Se ha publicado la rendición de cuentas de ${month}. Monto: $${parseFloat(amount).toLocaleString('es-CL')}. ${details}`,
       date: new Date().toISOString(),
       type: 'billing',
+      important: isImportant,
     };
 
     const announcements = storage.getAnnouncements();
@@ -52,6 +55,7 @@ export default function AdminBilling() {
     setMonth('');
     setAmount('');
     setDetails('');
+    setIsImportant(false);
   };
 
   return (
@@ -113,6 +117,16 @@ export default function AdminBilling() {
                   required
                   rows={4}
                 />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="important"
+                  checked={isImportant}
+                  onCheckedChange={(checked) => setIsImportant(checked as boolean)}
+                />
+                <Label htmlFor="important" className="cursor-pointer">
+                  Marcar como importante
+                </Label>
               </div>
               <Button type="submit" className="w-full">
                 <Plus className="w-4 h-4 mr-2" />
